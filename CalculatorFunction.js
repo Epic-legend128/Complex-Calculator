@@ -330,41 +330,55 @@ var solveSimple = function(action, num1, num2) {
 };
 //make sure the input is valid(of course it doesn't filter everything that could make the program break but it checks most of the things)
 var filter = function(input) {
-    var rightParenth = 0;
-    var leftParenth = 0;
-    var validInput = true;
-    var validSymblos = ["+", "-", "*", "/", " ", "(", ")", ".", "^", "!"];
-    for (var i = 0; i < input.length && validInput !== false; i++) {
-        validInput = false;
-        //check if it's one of the valid symbols
-        for (var c = 0; c < validSymblos.length && validInput !== true; c++) {
-            if (validSymblos[c] === input[i]) {
-                validInput = true;
-            }
+    var parenthesis = 0;
+    //valid symbols, though [] and {} are not valid but are converted to () by the format() function
+    var validSymbols = "+-*/ ().^![]{}0123456789";
+    for (var i = 0; i < input.length; i++) {
+        if (!validSymbols.includes(input[i])) {
+            return false;
         }
-        //check if it's a number
-        if (input.charCodeAt(i) >= 48 && input.charCodeAt(i) <= 57) {
-            validInput = true;
-        }
+        
         //checks the amout of parentheses
-        if (input[i] === "(") {
-            leftParenth++;
-        } else if (input[i] === ")") {
-            rightParenth++;
+        if ("([{".includes(input[i])) {
+            parenthesis++;
+        } else if (")]}".includes(input[i])) {
+            parenthesis--;
         }
     }
-    if (leftParenth !== rightParenth) {
-        validInput = false;
+    if (parenthesis != 0) {
+        return false;
     }
-    return validInput;
+    return true;
 };
-//delete any spaces from the numerical expression that the user entered
-var noSpaces = function(input) {
+
+//formats the numeric expression to be suitable for the solve() function to use
+var format = function(input) {
+    //remove spaces and replace [] and {} with ()
     var newInput = "";
+    var match = {
+        '[': '(',
+        '{': '(',
+        ']': ')',
+        '}': ')'
+    }
     for (var i = 0; i < input.length; i++) {
         if (input[i] !== " ") {
-            newInput += input[i];
+            if (input[i] in match) {
+                newInput += match[input[i]];
+            }
+            else {
+                newInput += input[i];
+            }
         }
     }
     return newInput;
 };
+
+//an expression for the program to solve
+var expr = "(3+150/5-16*2)+4^2*3";
+if (filter(expr)) {
+    console.log(solve(format(expr)));
+}
+else {
+    console.log("Wrong format!");
+}
